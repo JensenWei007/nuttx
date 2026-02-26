@@ -73,9 +73,7 @@ static volatile struct renesas_rlin3 *uart = (void*)PLAT_UART_ADDR;
 
 void u2a16_earlyserialinit(void)
 {
-  /* Disable all USARTS */
   renesas_rlin3_earlyserialinit(uart);
-
 }
 
 /****************************************************************************
@@ -105,9 +103,5 @@ void u2a16_serialinit(void)
 
 void up_putc(int ch)
 {
-  renesas_rlin3_putc(uart, ch);
-}
-
-void u2a16_earlyserialputc(char ch) {
   renesas_rlin3_putc(uart, ch);
 }

@@ -49,6 +49,7 @@ void up_idle(void)
 {
   /* For now, do nothing.
    *
-   * We could put the CPU into a low power state here while we wait.
+   * We could put the CPU into a low power state here while we wait for a interrupt.
    */
+  asm volatile("snooze\n\t");
 }

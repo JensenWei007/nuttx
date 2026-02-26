@@ -56,5 +56,3 @@ void u2a16_earlyserialinit(void);
 #ifdef USE_SERIALDRIVER
 void u2a16_serialinit(void);
 #endif
-
-void u2a16_earlyserialputc(char ch);

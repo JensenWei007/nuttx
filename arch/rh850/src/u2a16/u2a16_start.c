@@ -64,8 +64,6 @@ void u2a16_start(void)
 {
   u2a16_earlyserialinit();
 
-  //u2a16_earlyserialputc('a');
-
   early_syslog("here is entry\n");
 
   /* Start NuttX */
