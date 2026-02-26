@@ -54,6 +54,10 @@ if(CONFIG_UART_HOSTFS)
   list(APPEND SRCS uart_hostfs.c)
 endif()
 
+if(CONFIG_RENESAS_RLIN3_UART)
+  list(APPEND SRCS uart_renesas_rlin3.c)
+endif()
+
 # Pseudo-terminal support
 
 if(CONFIG_PSEUDOTERM)

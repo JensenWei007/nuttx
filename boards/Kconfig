@@ -3446,6 +3446,13 @@ config ARCH_BOARD_FRDM_MCXN236
 		This options selects support for NuttX on the NXP MCXN236 CPU EVK
 		board with ARM Cortex-M33.
 
+config ARCH_BOARD_RH850_U2A16
+	bool "Renesas RH850 U2A16 board"
+	depends on ARCH_CHIP_U2A16
+	---help---
+		This options selects support for NuttX on the Renesas RH850 U2A16
+		board.
+
 config ARCH_BOARD_CUSTOM
 	bool "Custom development board"
 	---help---
@@ -3881,6 +3888,7 @@ config ARCH_BOARD
 	default "at32f437-mini"                if ARCH_BOARD_AT32F437_MINI
 	default "csk6011a-nano"                if ARCH_BOARD_CSK6011A_NANO
 	default "frdm-mcxn236"                 if ARCH_BOARD_FRDM_MCXN236
+	default "rh850-u2a16"                  if ARCH_BOARD_RH850_U2A16
 
 comment "Common Board Options"
 
@@ -4989,6 +4997,9 @@ source "boards/arm/mcx-nxxx/frdm-mcxn236/Kconfig"
 endif
 if ARCH_BOARD_RASPBERRYPI_PICO_2_RV
 source "boards/risc-v/rp23xx-rv/raspberrypi-pico-2-rv/Kconfig"
+endif
+if ARCH_BOARD_RH850_U2A16
+source "boards/rh850/u2ax/u2a16/Kconfig"
 endif
 
 comment "Board-Common Options"

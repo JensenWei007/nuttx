@@ -132,6 +132,14 @@ if 16550_UART
 source "drivers/serial/Kconfig-16550"
 endif
 
+menuconfig RENESAS_RLIN3_UART
+	bool "Renesas rlin3 UART Chip support"
+	default n
+
+if RENESAS_RLIN3_UART
+source "drivers/serial/Kconfig-renesasrlin3"
+endif
+
 if PCI
 source "drivers/serial/Kconfig-pci"
 endif

@@ -1,0 +1,41 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+if ARCH_RH850
+comment "RH850 Options"
+
+choice
+	prompt "RH850 Toolchain Selection"
+	default RH850_TOOLCHAIN_GNU
+
+config RH850_TOOLCHAIN_GNU
+	bool "Generic GNU toolchain"
+	select ARCH_TOOLCHAIN_GCC
+	---help---
+		This option should work for any modern GNU toolchain (GCC 4.5 or newer)
+
+endchoice # RH850 Toolchain Selection
+
+choice
+	prompt "RH850 chip selection"
+	default ARCH_CHIP_U2A16
+
+config ARCH_CHIP_U2A16
+	bool "Renesas RH850-U2A16"
+	#select ARCH_CORTEX_A53
+	---help---
+		Renesas RH850-U2A16 SoC
+
+endchoice # RH850 chip Selection
+
+config ARCH_CHIP
+	string
+	default "u2a16"   if ARCH_CHIP_U2A16
+
+if ARCH_CHIP_U2A16
+source "arch/rh850/src/u2a16/Kconfig"
+endif
+
+endif # ARCH_RH850
