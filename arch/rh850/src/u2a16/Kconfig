@@ -5,6 +5,16 @@
 
 if ARCH_CHIP_U2A16
 
+menu "Timer Options"
 
+config OSTM_INDEX
+	int "OSTM index"
+	default 0
+
+config OSTM_FREQ
+	int "OSTM freq"
+	default 80000000
+
+endmenu # Timer Options
 
 endif # ARCH_CHIP_U2A16
