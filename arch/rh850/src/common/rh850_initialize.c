@@ -29,6 +29,8 @@
 
 #include <arch/board/board.h>
 
+#include <nuttx/syslog/syslog.h>
+
 /****************************************************************************
  * Public Data
  ****************************************************************************/
@@ -61,8 +63,10 @@
  *   been initialized.  OS services and driver services are available.
  *
  ****************************************************************************/
+#include <nuttx/syslog/syslog.h>
 
 void up_initialize(void)
 {
+    early_syslog("init");
   
 }

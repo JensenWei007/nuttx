@@ -33,6 +33,7 @@
 #include <nuttx/addrenv.h>
 #include <nuttx/arch.h>
 #include <nuttx/sched.h>
+#include <nuttx/syslog/syslog.h>
 
 #include "sched/sched.h"
 #include "clock/clock.h"
@@ -57,5 +58,6 @@
 
 void up_switch_context(struct tcb_s *tcb, struct tcb_s *rtcb)
 {
+    early_syslog("swit");
 
 }

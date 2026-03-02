@@ -31,6 +31,7 @@
 
 #include <nuttx/addrenv.h>
 #include <nuttx/arch.h>
+#include <nuttx/syslog/syslog.h>
 #include <nuttx/irq.h>
 
 #include "task/task.h"
@@ -55,6 +56,8 @@
 
 void up_exit(int status)
 {
+      early_syslog("exit");
+
   struct tcb_s *tcb = this_task();
 
   /* Destroy the task at the head of the ready to run list. */

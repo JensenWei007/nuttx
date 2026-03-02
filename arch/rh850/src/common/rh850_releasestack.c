@@ -31,6 +31,7 @@
 
 #include <nuttx/arch.h>
 #include <nuttx/kmalloc.h>
+#include <nuttx/syslog/syslog.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -73,5 +74,6 @@
 
 void up_release_stack(struct tcb_s *dtcb, uint8_t ttype)
 {
-  
+      early_syslog("release_stack");
+
 }

@@ -32,6 +32,7 @@
 
 #include <nuttx/irq.h>
 #include <nuttx/arch.h>
+#include <nuttx/syslog/syslog.h>
 
 #include "sched/sched.h"
 
@@ -77,5 +78,6 @@
 
 void up_schedule_sigaction(struct tcb_s *tcb)
 {
-  
+      early_syslog("sche");
+
 }

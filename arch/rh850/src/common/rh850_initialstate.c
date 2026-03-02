@@ -45,6 +45,7 @@
 #include <string.h>
 
 #include <nuttx/arch.h>
+#include <nuttx/syslog/syslog.h>
 
 /****************************************************************************
  * Public Functions
@@ -66,5 +67,6 @@
 
 void up_initial_state(struct tcb_s *tcb)
 {
-  
+      early_syslog("init_state");
+
 }

@@ -37,6 +37,7 @@
 #include <nuttx/arch.h>
 #include <nuttx/tls.h>
 #include <nuttx/board.h>
+#include <nuttx/syslog/syslog.h>
 #include <arch/board/board.h>
 
 /****************************************************************************
@@ -83,6 +84,7 @@
 
 int up_create_stack(struct tcb_s *tcb, size_t stack_size, uint8_t ttype)
 {
+    early_syslog("up_create_stack");
 
   return 1;
 }

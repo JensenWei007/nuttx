@@ -37,6 +37,8 @@
 
 #include <arch/board/board.h>
 
+#include "rh850_common_memorymap.h"
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -58,7 +60,7 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: up_allocate_heap/or1k_allocate_kheap
+ * Name: up_allocate_heap
  *
  * Description:
  *   This function will be called to dynamically set aside the heap region.
@@ -96,13 +98,11 @@
  *
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
-void up_allocate_kheap(void **heap_start, size_t *heap_size)
-#else
-void up_allocate_heap(void **heap_start, size_t *heap_size)
-#endif
+ void up_allocate_heap(void **heap_start, size_t *heap_size)
 {
-
+    // Now only is flat build.
+    *heap_start = (void *)_heap_base;
+    *heap_size = 4096;
 }
 
 /****************************************************************************
@@ -119,6 +119,6 @@ void up_allocate_heap(void **heap_start, size_t *heap_size)
 #if defined(CONFIG_BUILD_PROTECTED) && defined(CONFIG_MM_KERNEL_HEAP)
 void up_allocate_kheap(void **heap_start, size_t *heap_size)
 {
-  
+    early_syslog("up_allocate_kheap\n");
 }
 #endif

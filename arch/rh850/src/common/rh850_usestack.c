@@ -35,6 +35,7 @@
 #include <nuttx/kmalloc.h>
 #include <nuttx/arch.h>
 #include <nuttx/tls.h>
+#include <nuttx/syslog/syslog.h>
 
 /****************************************************************************
  * Public Functions
@@ -70,5 +71,7 @@
 
 int up_use_stack(struct tcb_s *tcb, void *stack, size_t stack_size)
 {
+  early_syslog("usestack");
+
   return 1;
 }

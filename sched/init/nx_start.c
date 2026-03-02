@@ -48,6 +48,7 @@
 #include <nuttx/drivers/drivers.h>
 #include <nuttx/init.h>
 #include <nuttx/lib/math32.h>
+#include <nuttx/syslog/syslog.h>
 
 #include "task/task.h"
 #include "sched/sched.h"
@@ -603,12 +604,15 @@ void nx_start(void)
 
   g_pidhash = kmm_zalloc(sizeof(*g_pidhash) * i);
   DEBUGASSERT(g_pidhash);
+  early_syslog("nx_start-------1\n");
 
   g_npidhash = i;
 
   /* IDLE Group Initialization **********************************************/
 
   idle_group_initialize();
+    early_syslog("nx_start-------2\n");
+
 
   g_lastpid = CONFIG_SMP_NCPUS - 1;
 
@@ -620,38 +624,51 @@ void nx_start(void)
   /* Initialize tasking data structures */
 
   task_initialize();
+    early_syslog("nx_start-------3\n");
+
 
   /* Initialize the instrument function */
 
   instrument_initialize();
+    early_syslog("nx_start-------4\n");
+
 
   /* Initialize the file system (needed to support device drivers) */
 
   fs_initialize();
+      early_syslog("nx_start-------5\n");
+
 
   /* Initialize the interrupt handling subsystem (if included) */
 
   irq_initialize();
+      early_syslog("nx_start-------6\n");
+
 
   /* Initialize the POSIX timer facility (if included in the link) */
 
   clock_initialize();
+      early_syslog("nx_start-------7\n");
+
 
 #ifndef CONFIG_DISABLE_POSIX_TIMERS
   timer_initialize();
 #endif
+    early_syslog("nx_start-------8\n");
 
   /* Initialize the signal facility (if in link) */
 
 #ifdef CONFIG_ENABLE_ALL_SIGNALS
   nxsig_initialize();
 #endif
+    early_syslog("nx_start-------9\n");
 
 #if !defined(CONFIG_DISABLE_MQUEUE) || !defined(CONFIG_DISABLE_MQUEUE_SYSV)
   /* Initialize the named message queue facility (if in link) */
 
   nxmq_initialize();
 #endif
+    early_syslog("nx_start-------10\n");
 
 #ifdef CONFIG_NET
   /* Initialize the networking system */

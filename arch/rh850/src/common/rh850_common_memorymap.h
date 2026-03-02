@@ -1,5 +1,5 @@
 /****************************************************************************
- * arch/rh850/src/common/rh850_stackframe.c
+ * arch/rh850/src/common/rh850_common_memorymap.h
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -20,6 +20,9 @@
  *
  ****************************************************************************/
 
+#ifndef __ARCH_RH850_SRC_COMMON_RH850_COMMON_MEMORYMAP_H
+#define __ARCH_RH850_SRC_COMMON_RH850_COMMON_MEMORYMAP_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
@@ -27,51 +30,34 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
-#include <stdint.h>
-#include <sched.h>
-#include <debug.h>
-
-#include <nuttx/arch.h>
-#include <nuttx/syslog/syslog.h>
-#include <arch/irq.h>
 
 /****************************************************************************
- * Public Functions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: up_stack_frame
- *
- * Description:
- *   Allocate a stack frame in the TCB's stack to hold thread-specific data.
- *   This function may be called anytime after up_create_stack() or
- *   up_use_stack() have been called but before the task has been started.
- *
- *   Thread data may be kept in the stack (instead of in the TCB) if it is
- *   accessed by the user code directly.  This includes such things as
- *   argv[].  The stack memory is guaranteed to be in the same protection
- *   domain as the thread.
- *
- *   The following TCB fields will be re-initialized:
- *
- *   - adj_stack_size: Stack size after removal of the stack frame from
- *     the stack
- *   - stack_base_ptr: Adjusted stack base pointer after the TLS Data and
- *     Arguments has been removed from the stack allocation.
- *
- * Input Parameters:
- *   - tcb:  The TCB of new task
- *   - frame_size:  The size of the stack frame to allocate.
- *
- *  Returned Value:
- *   - A pointer to bottom of the allocated stack frame.  NULL will be
- *     returned on any failures.  The alignment of the returned value is
- *     the same as the alignment of the stack itself.
- *
+ * Public Types
  ****************************************************************************/
 
-void *up_stack_frame(struct tcb_s *tcb, size_t frame_size)
+#undef EXTERN
+#if defined(__cplusplus)
+#define EXTERN extern "C"
+extern "C"
 {
-      early_syslog("stackfr");
+#else
+#define EXTERN extern
+#endif
 
+#ifndef __ASSEMBLY__
+/* These symbols are setup by the linker script. */
+
+EXTERN uint8_t _stack_base[];
+EXTERN uint8_t _heap_base[];
+
+#endif /* __ASSEMBLY__ */
+
+#undef EXTERN
+#ifdef __cplusplus
 }
+#endif
+#endif /* __ARCH_RH850_SRC_COMMON_RH850_COMMON_MEMORYMAP_H */
