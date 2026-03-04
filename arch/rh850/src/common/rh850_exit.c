@@ -39,6 +39,8 @@
 #include "group/group.h"
 #include "irq/irq.h"
 
+#include "rh850_internal.h"
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -87,5 +89,5 @@ void up_exit(int status)
 
   /* Then switch contexts */
 
-  //or1k_fullcontextrestore(tcb->xcp.regs);
+  rh850_fullcontextrestore(tcb->xcp.regs);
 }
