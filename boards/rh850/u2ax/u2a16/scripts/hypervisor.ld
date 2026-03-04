@@ -21,6 +21,7 @@
  ****************************************************************************/
 
 #include <arch/board/board_memorymap.h>
+#include <nuttx/config.h>
 
 MEMORY
 {
@@ -80,8 +81,8 @@ SECTIONS {
 
     .stackheap (NOLOAD) : ALIGN(16) {
         PROVIDE(_stack_base = .);
-        . = . + STACKHEAP_SIZE;
-        PROVIDE(_heap_base = .);
+        . = . + CONFIG_IDLETHREAD_STACKSIZE;
+        PROVIDE(_g_idle_topstack = .);
         PROVIDE(__heap_base = .); /* needed for RH850 */
     } > RAM
 }

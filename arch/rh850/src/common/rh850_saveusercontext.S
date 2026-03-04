@@ -99,21 +99,36 @@ _rh850_fullcontextrestore:
   /* restore PC */
   jarl _restore_pc, lp
 
-  ld.dw 0[r31], r1
-  ld.dw 8[r31], r3
-  ld.dw 16[r31], r5
-  ld.dw 24[r31], r7
-  ld.dw 32[r31], r9
-  ld.dw 40[r31], r11
-  ld.dw 48[r31], r13
-  ld.dw 56[r31], r15
-  ld.dw 64[r31], r17
-  ld.dw 72[r31], r19
-  ld.dw 80[r31], r21
-  ld.dw 88[r31], r23
-  ld.dw 96[r31], r25
-  ld.dw 104[r31], r27
-  ld.dw 112[r31], r29
+  ld.w 0[r31], r1
+  ld.w 4[r31], r2
+  ld.w 8[r31], r3
+  ld.w 12[r31], r4
+  ld.w 16[r31], r5
+  ld.w 20[r31], r6
+  ld.w 24[r31], r7
+  ld.w 28[r31], r8
+  ld.w 32[r31], r9
+  ld.w 36[r31], r10
+  ld.w 40[r31], r11
+  ld.w 44[r31], r12
+  ld.w 48[r31], r13
+  ld.w 52[r31], r14
+  ld.w 56[r31], r15
+  ld.w 60[r31], r16
+  ld.w 64[r31], r17
+  ld.w 68[r31], r18
+  ld.w 72[r31], r19
+  ld.w 76[r31], r20
+  ld.w 80[r31], r21
+  ld.w 84[r31], r22
+  ld.w 88[r31], r23
+  ld.w 92[r31], r24
+  ld.w 96[r31], r25
+  ld.w 100[r31], r26
+  ld.w 104[r31], r27
+  ld.w 108[r31], r28
+  ld.w 112[r31], r29
+  ld.w 116[r31], r30
   ld.w 120[r31], r31
 
   /* select ret instruction */

@@ -36,6 +36,7 @@
 #include <nuttx/userspace.h>
 
 #include <arch/board/board.h>
+#include <arch/board/board_memorymap.h>
 
 #include "rh850_common_memorymap.h"
 
@@ -98,11 +99,11 @@
  *
  ****************************************************************************/
 
- void up_allocate_heap(void **heap_start, size_t *heap_size)
+void up_allocate_heap(void **heap_start, size_t *heap_size)
 {
     // Now only is flat build.
     *heap_start = (void *)_heap_base;
-    *heap_size = 4096;
+    *heap_size = RAM_BASE + RAM_SIZE - (unsigned int)_heap_base;
 }
 
 /****************************************************************************

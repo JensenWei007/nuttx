@@ -47,6 +47,8 @@
 #include <nuttx/arch.h>
 #include <nuttx/syslog/syslog.h>
 
+#include "rh850_internal.h"
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -67,6 +69,30 @@
 
 void up_initial_state(struct tcb_s *tcb)
 {
-      early_syslog("init_state");
+      struct xcptcontext *xcp = &tcb->xcp;
 
+      /* Initialize the idle thread stack */
+
+      if (tcb->pid == IDLE_PROCESS_ID)
+      {
+            char *stack_ptr = (char *)(g_idle_topstack -
+                                       CONFIG_IDLETHREAD_STACKSIZE);
+
+            tcb->stack_alloc_ptr = stack_ptr;
+            tcb->stack_base_ptr = stack_ptr;
+            tcb->adj_stack_size = CONFIG_IDLETHREAD_STACKSIZE;
+      }
+
+      /* Initialize the initial exception register context structure */
+
+      memset(xcp, 0, sizeof(struct xcptcontext));
+
+      /* Set the initial stack pointer to the "top" of the allocated stack */
+
+      xcp->regs[REG_SP] = (uint32_t)tcb->stack_base_ptr +
+                          tcb->adj_stack_size;
+
+      /* Save the task entry point */
+
+      xcp->regs[REG_PC] = (uint32_t)tcb->start;
 }

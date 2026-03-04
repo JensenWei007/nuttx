@@ -42,6 +42,9 @@
 #define XCPTCONTEXT_REGS    (32)
 #define XCPTCONTEXT_SIZE    (4 * XCPTCONTEXT_REGS)
 
+#define REG_PC              (31)
+#define REG_SP              (2)
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/
