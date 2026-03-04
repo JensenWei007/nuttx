@@ -74,6 +74,30 @@
 
 void up_release_stack(struct tcb_s *dtcb, uint8_t ttype)
 {
-      early_syslog("release_stack");
+      /* Is there a stack allocated? */
 
+      if (dtcb->stack_alloc_ptr && (dtcb->flags & TCB_FLAG_FREE_STACK))
+      {
+#ifdef CONFIG_MM_KERNEL_HEAP
+            /* Use the kernel allocator if this is a kernel thread */
+
+            if (ttype == TCB_FLAG_TTYPE_KERNEL)
+            {
+                  kmm_free(dtcb->stack_alloc_ptr);
+            }
+            else
+#endif
+            {
+                  /* Use the user-space allocator if this is a task or pthread */
+
+                  kumm_free(dtcb->stack_alloc_ptr);
+            }
+      }
+
+      /* Mark the stack freed */
+
+      dtcb->flags &= ~TCB_FLAG_FREE_STACK;
+      dtcb->stack_alloc_ptr = NULL;
+      dtcb->stack_base_ptr = NULL;
+      dtcb->adj_stack_size = 0;
 }
