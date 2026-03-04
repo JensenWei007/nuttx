@@ -36,9 +36,9 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
-
-// 不知道啥意思
+// the total number of IRQs supported by the board
 #define NR_IRQS             10
+
 #define XCPTCONTEXT_REGS    (32)
 #define XCPTCONTEXT_SIZE    (4 * XCPTCONTEXT_REGS)
 
@@ -57,7 +57,7 @@
 struct xcptcontext
 {
   /* Register save area */
-
+  /* r1 - r31, pc*/
   uint32_t regs[XCPTCONTEXT_REGS];
 };
 #endif

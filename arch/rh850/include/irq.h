@@ -58,22 +58,7 @@
  * Inline functions
  ****************************************************************************/
 
-/* Return the current value of the stack pointer */
 
-static inline_function uint32_t up_getsp(void)
-{
-  uint32_t sp;
-
-  /*
-  __asm__
-  (
-    "\tmov %0, sp\n\t"
-    : "=r"(sp)
-  );
-  */
-
-  return sp;
-}
 
 /****************************************************************************
  * Public Data

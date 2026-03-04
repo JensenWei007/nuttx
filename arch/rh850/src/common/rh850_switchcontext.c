@@ -37,6 +37,7 @@
 
 #include "sched/sched.h"
 #include "clock/clock.h"
+#include "rh850_internal.h"
 
 /****************************************************************************
  * Public Functions
@@ -59,5 +60,51 @@
 void up_switch_context(struct tcb_s *tcb, struct tcb_s *rtcb)
 {
     early_syslog("swit");
+    /* Are we in an interrupt handler? */
 
+    if (0)
+    {
+        /* Yes, then we have to do things differently.
+         * Just copy the g_current_regs into the OLD rtcb.
+         */
+
+        // renesas_savestate(rtcb->xcp.regs);
+
+        /* Then switch contexts.  Any necessary address environment
+         * changes will be made when the interrupt returns.
+         */
+
+        // up_set_current_regs(tcb->xcp.regs);
+    }
+
+    /* We are not in an interrupt handler.  Copy the user C context
+     * into the TCB of the task that was previously active.  if
+     * up_saveusercontext returns a non-zero value, then this
+     * is really the previously running task restarting!
+     */
+
+    else if (!up_saveusercontext(rtcb->xcp.regs))
+    {
+#ifdef CONFIG_ARCH_ADDRENV
+        /* Make sure that the address environment for the previously
+         * running task is closed down gracefully (data caches dump,
+         * MMU flushed) and set up the address environment for the new
+         * thread at the head of the ready-to-run list.
+         */
+
+        addrenv_switch(tcb);
+        tcb = this_task();
+#endif
+        /* Update scheduler parameters */
+
+        nxsched_switch_context(rtcb, tcb);
+
+        /* Record the new "running" task */
+
+        g_running_tasks[this_cpu()] = tcb;
+
+        /* Then switch contexts */
+
+        rh850_fullcontextrestore(tcb->xcp.regs);
+    }
 }

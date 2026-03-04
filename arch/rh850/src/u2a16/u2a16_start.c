@@ -59,12 +59,18 @@
  *   This is the entry point.
  *
  ****************************************************************************/
+static inline unsigned long get_psw(void)
+{
+    unsigned long val;
+    __asm__ volatile("stsr 5, %0, 0" : "=r"(val));
+    return val;
+}
 
 void u2a16_start(void)
 {
   u2a16_earlyserialinit();
 
-  early_syslog("here is entry\n");
+  early_syslog("here is entry, %x\n", (unsigned long)get_psw());
 
   /* Start NuttX */
 
