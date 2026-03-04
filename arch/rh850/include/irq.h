@@ -52,7 +52,7 @@
  * addresses.
  */
 
-#define STACKFRAME_ALIGN 8
+#define STACKFRAME_ALIGN 4
 
 /****************************************************************************
  * Inline functions
