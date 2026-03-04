@@ -26,7 +26,6 @@
 
 #include <nuttx/config.h>
 #include <nuttx/arch.h>
-#include <nuttx/syslog/syslog.h>
 
 /****************************************************************************
  * Public Functions
@@ -42,6 +41,8 @@
 
 void up_nputs(const char *str, size_t len)
 {
-      early_syslog("nputs");
-
+      while (len-- > 0 && *str)
+      {
+            up_putc(*str++);
+      }
 }
