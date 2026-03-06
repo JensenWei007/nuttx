@@ -89,16 +89,6 @@ typedef void (*up_vector_t)(void);
  * Public Data
  ****************************************************************************/
 
-#ifndef __ASSEMBLY__
-/* This is the beginning of heap as provided from up_head.S.
- * This is the first address in DRAM after the loaded
- * program+bss+idle stack.  The end of the heap is
- * CONFIG_RAM_END
- */
-
-extern uint32_t g_idle_topstack;
-#endif
-
 /* Address of the saved user stack pointer */
 
 #ifndef __ASSEMBLY__
@@ -120,6 +110,7 @@ extern uint32_t g_idle_topstack;
 
 /* Defined in files with the same name as the function */
 void rh850_fullcontextrestore(uint32_t *regs) noreturn_function;
+void u2a16_serialinit();
 
 #endif /* __ASSEMBLY__ */
 #endif /* ___ARCH_RH850_SRC_COMMON_UP_INTERNAL_H */

@@ -58,7 +58,7 @@
 
 void up_exit(int status)
 {
-      early_syslog("exit");
+  early_syslog("exit, status:%d", status);
 
   struct tcb_s *tcb = this_task();
 

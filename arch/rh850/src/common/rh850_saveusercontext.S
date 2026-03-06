@@ -28,6 +28,11 @@
  * Public Functions
  **************************************************************************/
 
+.macro LOAD_ADDR    sym, reg
+    movhi hi(\sym), r0, \reg
+    movea lo(\sym), \reg, \reg
+.endm
+
 /**************************************************************************
  * Name: up_saveusercontext
  **************************************************************************/
@@ -49,11 +54,11 @@ _up_saveusercontext:
 
 /**
  * Restore PC to EIPC or FEPC depending on the exception type
- * r10: vcpu register struct base address
+ * r31: vcpu register struct base address
  * uses r20 and r21
  */
 _restore_pc:
-    ld.w 124[r10], r20
+    ld.w 124[r31], r20
     stsr 5, r21, 0
     andi 0x80, r21, r21
     cmp r0, r21
@@ -61,7 +66,7 @@ _restore_pc:
     ldsr r20, 2, 0     /* set FEPC */
     br _restore_pc_exit
 _restore_ei:
-    ldsr r20, 2, 0     /* set EIPC */
+    ldsr r20, 0, 0     /* set EIPC */
 _restore_pc_exit:
     jmp [lp]
 
@@ -74,10 +79,8 @@ _select_xxret:
     andi 0x80, r31, r31
     cmp r0, r31
     be _ei_ret
-    stsr 20, r31, 1
     feret
 _ei_ret:
-    stsr 20, r31, 1
     eiret
 
 /**************************************************************************
@@ -95,9 +98,24 @@ _rh850_fullcontextrestore:
   mov     sp, r29
   st.w    r6, 0[r29]
   ld.w	  0[r29], r10
-  
+
+  mov r10, r31
+
+/*
+    ld.w 124[r31], r10
+    mov 0xffc7c124, r21
+    mov 0xff, r22
+    and r22, r10
+    mov 0x20, r23
+    sub r23, r10
+    //addi 0x60, r10, r10
+    st.w r10, 0[r21]
+*/
+
   /* restore PC */
-  jarl _restore_pc, lp
+  //jarl _restore_pc, lp
+  ld.w 124[r31], r20
+  ldsr r20, 0, 0
 
   ld.w 0[r31], r1
   ld.w 4[r31], r2
@@ -129,14 +147,30 @@ _rh850_fullcontextrestore:
   ld.w 108[r31], r28
   ld.w 112[r31], r29
   ld.w 116[r31], r30
-  ld.w 120[r31], r31
+  //ld.w 120[r31], r31
+
+/*
+    mov 0xffc7c124, r20
+    mov 0x63, r21
+    st.w r21, 0[r20]
+*/
+
+  eiret
 
   /* select ret instruction */
   br _select_xxret
 
-  /* func ret
-  mov	r29, sp
-  ld.w	4[sp], r29
-  add	8, sp
-  jmp	[lp]
-  */
+
+.section .text
+.global  _rh850_test
+.type   _rh850_test, @function
+_rh850_test:
+    add	-8, sp
+    st.w	lp, 4[sp]
+    st.w	r29, 0[sp]
+    addi	-32, sp, sp
+    mov	sp, r29
+    mov 0xffc7c124, r20
+    mov 0x68, r21
+    st.w r21, 0[r20]
+

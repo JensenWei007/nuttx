@@ -704,6 +704,10 @@ config OTHER_SERIAL_CONSOLE
 	bool "Other serial console"
 	select SERIAL_CONSOLE
 
+config RLIN3_SERIAL_CONSOLE
+	bool "Renesas rlin3 serial console"
+	select SERIAL_CONSOLE
+
 config NO_SERIAL_CONSOLE
 	bool "No serial console"
 

@@ -53,6 +53,7 @@ extern "C"
 
 EXTERN uint8_t _stack_base[];
 EXTERN uint8_t _heap_base[];
+EXTERN uint8_t g_idle_topstack[];
 
 #endif /* __ASSEMBLY__ */
 

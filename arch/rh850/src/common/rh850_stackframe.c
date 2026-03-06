@@ -72,7 +72,6 @@
 
 void *up_stack_frame(struct tcb_s *tcb, size_t frame_size)
 {
-      early_syslog("stackfr");
       void *ret;
 
       /* Align the frame_size */
