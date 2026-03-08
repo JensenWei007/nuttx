@@ -167,7 +167,7 @@ static int renesas_rlin3_attach(FAR struct uart_dev_s *dev)
        * That means this interrupt will not happen.
        */
 
-      //up_enable_irq(priv->irq);
+      up_enable_irq(priv->irq);
     }
 #endif
 
@@ -239,6 +239,7 @@ static void renesas_rlin3_send(FAR struct uart_dev_s *dev, int ch)
   }
 }
 
+// TODO, it seems that this interrupt will not trigger, the tx is completed automatically
 static void renesas_rlin3_txint(FAR struct uart_dev_s *dev, bool enable)
 {
   FAR struct renesas_rlin3_s *priv = (FAR struct renesas_rlin3_s *)dev->priv;
@@ -267,7 +268,7 @@ static bool renesas_rlin3_txready(FAR struct uart_dev_s *dev)
 {
   FAR struct renesas_rlin3_s *priv = (FAR struct renesas_rlin3_s *)dev->priv;
   FAR struct renesas_rlin3 *uart = priv->uart;
-  //return !(uart->RLN3nLST & RLN3_LST_UTS_MSK);
+  while (uart->RLN3nLST & RLN3_LST_UTS_MSK);
   return true;
 }
 
