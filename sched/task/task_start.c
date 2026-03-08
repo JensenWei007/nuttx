@@ -102,8 +102,6 @@ void nxtask_start(void)
   else
     {
 #ifdef CONFIG_BUILD_FLAT
-      early_syslog("nxtask_start, main:%x", (unsigned long)tcb->entry.main);
-
       nxtask_startup(tcb->entry.main, argc, argv);
 #else
       up_task_start(tcb->entry.main, argc, argv);

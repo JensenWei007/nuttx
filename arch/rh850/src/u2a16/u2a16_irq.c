@@ -80,9 +80,6 @@ void up_disable_irq(int irq)
 
 void up_enable_irq(int irq)
 {
-    early_syslog("irq-1, %d", irq);
     intc_set_enable(irq, true);
-    early_syslog("irq-2");
     intc_set_trgt(irq, get_cpuid());
-    early_syslog("irq-3");
 }

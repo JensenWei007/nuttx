@@ -146,15 +146,12 @@ static int renesas_rlin3_setup(FAR struct uart_dev_s *dev)
 
 static void renesas_rlin3_shutdown(FAR struct uart_dev_s *dev)
 {
-  early_syslog("shutdown");
-
   FAR struct renesas_rlin3_s *priv = (FAR struct renesas_rlin3_s *)dev->priv;
 
 }
 
 static int renesas_rlin3_attach(FAR struct uart_dev_s *dev)
 {
-  early_syslog("attach");
   FAR struct renesas_rlin3_s *priv = (FAR struct renesas_rlin3_s *)dev->priv;
   int ret;
 
@@ -164,18 +161,15 @@ static int renesas_rlin3_attach(FAR struct uart_dev_s *dev)
 #ifndef CONFIG_ARCH_NOINTC
   if (ret == OK)
     {
-      early_syslog("attach444");
       /* Enable the interrupt (RX and TX interrupts are still disabled
        * in the UART
        * But in UART mode, the interrupt source for this is none.
        * That means this interrupt will not happen.
        */
 
-      up_enable_irq(priv->irq);
-      early_syslog("attach555");
+      //up_enable_irq(priv->irq);
     }
 #endif
-  early_syslog("attach down");
 
   return ret;
 }
@@ -190,7 +184,6 @@ static void renesas_rlin3_detach(FAR struct uart_dev_s *dev)
 
 static int renesas_rlin3_ioctl(FAR struct file *filep, int cmd, unsigned long arg)
 {
-  early_syslog("ioctl");
   return OK;
 }
 
@@ -219,7 +212,7 @@ static void renesas_rlin3_rxint(FAR struct uart_dev_s *dev, bool enable)
 
   if(enable) {
     irq_attach(priv->rxirq, priv->ops->rxisr, dev);
-    up_enable_irq(priv->rxirq);
+    //up_enable_irq(priv->rxirq);
   } else {
     up_disable_irq(priv->rxirq);
     irqchain_detach(priv->rxirq, priv->ops->rxisr, dev);
@@ -239,6 +232,11 @@ static void renesas_rlin3_send(FAR struct uart_dev_s *dev, int ch)
   FAR struct renesas_rlin3 *uart = priv->uart;
   while (uart->RLN3nLST & RLN3_LST_UTS_MSK);
   uart->RLN3nLUTDR = ch;
+
+  if((char)ch == '\n') {
+    while (uart->RLN3nLST & RLN3_LST_UTS_MSK);
+    uart->RLN3nLUTDR = (int)'\r';
+  }
 }
 
 static void renesas_rlin3_txint(FAR struct uart_dev_s *dev, bool enable)

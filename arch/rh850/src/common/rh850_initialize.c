@@ -68,7 +68,5 @@ volatile uint32_t *g_current_regs;
 
 void up_initialize(void)
 {
-    early_syslog("init");
-
     renesas_rlin3_serialinit();
 }

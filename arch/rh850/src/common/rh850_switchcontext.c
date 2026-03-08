@@ -59,7 +59,6 @@
 
 void up_switch_context(struct tcb_s *tcb, struct tcb_s *rtcb)
 {
-    early_syslog("swit");
     /* Are we in an interrupt handler? */
 
     if (0)
@@ -104,7 +103,6 @@ void up_switch_context(struct tcb_s *tcb, struct tcb_s *rtcb)
         g_running_tasks[this_cpu()] = tcb;
 
         /* Then switch contexts */
-        early_syslog("swit will return, %x, %x\n", (unsigned long)tcb->xcp.regs, (unsigned long)tcb->xcp.regs[2]);
 
         rh850_fullcontextrestore(tcb->xcp.regs);
     }
