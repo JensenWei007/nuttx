@@ -35,11 +35,17 @@
 #include <arch/irq.h>
 #include <arch/chip/cpu.h>
 
+#include <nuttx/syslog/syslog.h>
+
 #include "u2a16_intc.h"
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
+
+static void ei(){
+    asm volatile("ei\n\t");
+}
 
 /****************************************************************************
  * Name: up_irqinitialize
@@ -47,6 +53,7 @@
 
 void up_irqinitialize(void)
 {
+    ei();
     intc_init();
 }
 
@@ -73,6 +80,9 @@ void up_disable_irq(int irq)
 
 void up_enable_irq(int irq)
 {
+    early_syslog("irq-1, %d", irq);
     intc_set_enable(irq, true);
+    early_syslog("irq-2");
     intc_set_trgt(irq, get_cpuid());
+    early_syslog("irq-3");
 }

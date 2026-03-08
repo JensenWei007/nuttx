@@ -154,6 +154,7 @@ static void renesas_rlin3_shutdown(FAR struct uart_dev_s *dev)
 
 static int renesas_rlin3_attach(FAR struct uart_dev_s *dev)
 {
+  early_syslog("attach");
   FAR struct renesas_rlin3_s *priv = (FAR struct renesas_rlin3_s *)dev->priv;
   int ret;
 
@@ -163,6 +164,7 @@ static int renesas_rlin3_attach(FAR struct uart_dev_s *dev)
 #ifndef CONFIG_ARCH_NOINTC
   if (ret == OK)
     {
+      early_syslog("attach444");
       /* Enable the interrupt (RX and TX interrupts are still disabled
        * in the UART
        * But in UART mode, the interrupt source for this is none.
@@ -170,8 +172,10 @@ static int renesas_rlin3_attach(FAR struct uart_dev_s *dev)
        */
 
       up_enable_irq(priv->irq);
+      early_syslog("attach555");
     }
 #endif
+  early_syslog("attach down");
 
   return ret;
 }
@@ -265,7 +269,8 @@ static bool renesas_rlin3_txready(FAR struct uart_dev_s *dev)
 {
   FAR struct renesas_rlin3_s *priv = (FAR struct renesas_rlin3_s *)dev->priv;
   FAR struct renesas_rlin3 *uart = priv->uart;
-  return !(uart->RLN3nLST & RLN3_LST_UTS_MSK);
+  //return !(uart->RLN3nLST & RLN3_LST_UTS_MSK);
+  return true;
 }
 
 static bool renesas_rlin3_txempty(FAR struct uart_dev_s *dev)
@@ -362,7 +367,13 @@ int renesas_rlin3_interrupt(int irq, FAR void *context, FAR void *arg) {
  ****************************************************************************/
 
 int renesas_rlin3_rxinterrupt(int irq, FAR void *context, FAR void *arg) {
+  FAR struct uart_dev_s *dev = (struct uart_dev_s *)arg;
 
+  DEBUGASSERT(dev != NULL && dev->priv != NULL);
+
+  uart_recvchars(dev);
+
+  return OK;
 }
 
 /****************************************************************************
@@ -374,7 +385,13 @@ int renesas_rlin3_rxinterrupt(int irq, FAR void *context, FAR void *arg) {
  ****************************************************************************/
 
 int renesas_rlin3_txinterrupt(int irq, FAR void *context, FAR void *arg) {
+  FAR struct uart_dev_s *dev = (struct uart_dev_s *)arg;
 
+  DEBUGASSERT(dev != NULL && dev->priv != NULL);
+
+  uart_xmitchars(dev);
+
+  return OK;
 }
 
 /****************************************************************************
