@@ -30,6 +30,7 @@ list(
   SRCS
   u2a16_start.c
   u2a16_serial.c
+  u2a16_intc.c
   u2a16_irq.c)
 
 #if(CONFIG_BUILD_KERNEL)

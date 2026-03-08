@@ -1,5 +1,5 @@
 /****************************************************************************
- * arch/rh850/src/u2a16/u2a16_irq.c
+ * arch/rh850/include/u2a16/cpu.h
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -20,59 +20,31 @@
  *
  ****************************************************************************/
 
+#ifndef __ARCH_RH850_INCLUDE_U2A16_CPU_H
+#define __ARCH_RH850_INCLUDE_U2A16_CPU_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include <nuttx/config.h>
-
-#include <stdint.h>
-#include <assert.h>
-#include <debug.h>
-
-#include <nuttx/irq.h>
-#include <nuttx/arch.h>
-#include <arch/irq.h>
-#include <arch/chip/cpu.h>
-
-#include "u2a16_intc.h"
+#include <arch/chip/srs.h>
 
 /****************************************************************************
- * Public Functions
+ * Pre-processor Definitions
  ****************************************************************************/
+
 
 /****************************************************************************
- * Name: up_irqinitialize
+ * Inline functions
  ****************************************************************************/
 
-void up_irqinitialize(void)
-{
-    intc_init();
+static inline unsigned long get_cpuid(){
+    return srs_peid_read();
 }
 
-/****************************************************************************
- * Name: up_disable_irq
- *
- * Description:
- *   Disable the IRQ specified by 'irq'
- *
- ****************************************************************************/
-
-void up_disable_irq(int irq)
-{
-    intc_set_enable(irq, false);
+static inline bool cpu_is_master(){
+    return get_cpuid() == 0;
 }
 
-/****************************************************************************
- * Name: up_enable_irq
- *
- * Description:
- *   Enable the IRQ specified by 'irq'
- *
- ****************************************************************************/
-
-void up_enable_irq(int irq)
-{
-    intc_set_enable(irq, true);
-    intc_set_trgt(irq, get_cpuid());
-}
+#endif /* __ARCH_RH850_INCLUDE_U2A16_CPU_H */

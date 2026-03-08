@@ -37,7 +37,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 // the total number of IRQs supported by the board
-#define NR_IRQS             10
+#define NR_IRQS             2048
 
 #define XCPTCONTEXT_REGS    (32)
 #define XCPTCONTEXT_SIZE    (4 * XCPTCONTEXT_REGS)
