@@ -99,4 +99,10 @@ static inline_function void up_irq_restore(irqstate_t flags)
 
 #endif
 
+#define up_getusrpc(regs) \
+    (((uint32_t *)((regs) ? (regs) : up_current_regs()))[REG_PC])
+
+#define up_getusrsp(regs) \
+    ((uintptr_t)((uint32_t *)(regs))[REG_SP])
+
 #endif /* __ARCH_RH850_INCLUDE_U2A16_IRQ_H */
