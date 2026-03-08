@@ -101,17 +101,6 @@ _rh850_fullcontextrestore:
 
   mov r10, r31
 
-/*
-    ld.w 124[r31], r10
-    mov 0xffc7c124, r21
-    mov 0xff, r22
-    and r22, r10
-    mov 0x20, r23
-    sub r23, r10
-    //addi 0x60, r10, r10
-    st.w r10, 0[r21]
-*/
-
   /* restore PC */
   //jarl _restore_pc, lp
   ld.w 124[r31], r20
@@ -159,18 +148,3 @@ _rh850_fullcontextrestore:
 
   /* select ret instruction */
   br _select_xxret
-
-
-.section .text
-.global  _rh850_test
-.type   _rh850_test, @function
-_rh850_test:
-    add	-8, sp
-    st.w	lp, 4[sp]
-    st.w	r29, 0[sp]
-    addi	-32, sp, sp
-    mov	sp, r29
-    mov 0xffc7c124, r20
-    mov 0x68, r21
-    st.w r21, 0[r20]
-

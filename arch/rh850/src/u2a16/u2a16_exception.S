@@ -178,8 +178,6 @@ ei_ret:
     add r20, sp
 .endm
 
-.extern _irq_handle
-
 _handle_exception:
 	br _handle_exception
 
@@ -192,7 +190,7 @@ _Interrupt_EI:
 	mov 0x7FF, r20
 	and r20, r6 // mask EIINT source
 
-  	jarl _rh850_irq_handle, lp
+  	jarl _rh850_doirq, lp
 
   	RESTORE_REGS
 

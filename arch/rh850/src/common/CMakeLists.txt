@@ -25,7 +25,7 @@ set(SRCS)
 list(APPEND SRCS rh850_macros.S)
 list(APPEND SRCS rh850_saveusercontext.S)
 
-list(APPEND SRCS rh850_irq.c)
+list(APPEND SRCS rh850_doirq.c)
 list(APPEND SRCS rh850_exit.c)
 list(APPEND SRCS rh850_switchcontext.c)
 list(APPEND SRCS rh850_oneshot.c)

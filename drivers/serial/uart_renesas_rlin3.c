@@ -35,15 +35,196 @@
 #include <errno.h>
 #include <debug.h>
 
+#include <nuttx/spinlock.h>
+#include <nuttx/irq.h>
+#include <nuttx/arch.h>
+#include <nuttx/clk/clk.h>
+#include <nuttx/dma/dma.h>
+#include <nuttx/fs/ioctl.h>
 #include <nuttx/serial/uart_renesas_rlin3.h>
 
 #ifdef CONFIG_RENESAS_RLIN3_UART
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define RLIN35_BASE 0xFFC7C100
+
+#define RLIN35_RXBUFSIZE 100
+#define RLIN35_TXBUFSIZE 100
+
+#define renesas_rlin3_getreg renesas_rlin3_mmio_getreg
+#define renesas_rlin3_putreg renesas_rlin3_mmio_putreg
+//For not use mmio
+//#define u16550_getreg uart_getreg
+//#define u16550_putreg uart_putreg
+
+
+/****************************************************************************
+ * Private Function Prototypes
+ ****************************************************************************/
+
+static int  renesas_rlin3_setup(FAR struct uart_dev_s *dev);
+static void renesas_rlin3_shutdown(FAR struct uart_dev_s *dev);
+static int  renesas_rlin3_attach(FAR struct uart_dev_s *dev);
+static void renesas_rlin3_detach(FAR struct uart_dev_s *dev);
+static int  renesas_rlin3_ioctl(FAR struct file *filep, int cmd, unsigned long arg);
+static int  renesas_rlin3_receive(FAR struct uart_dev_s *dev, unsigned int *status);
+static void renesas_rlin3_rxint(FAR struct uart_dev_s *dev, bool enable);
+static bool renesas_rlin3_rxavailable(FAR struct uart_dev_s *dev);
+static void renesas_rlin3_send(FAR struct uart_dev_s *dev, int ch);
+static void renesas_rlin3_txint(FAR struct uart_dev_s *dev, bool enable);
+static bool renesas_rlin3_txready(FAR struct uart_dev_s *dev);
+static bool renesas_rlin3_txempty(FAR struct uart_dev_s *dev);
+
+/****************************************************************************
  * Private Data
  ****************************************************************************/
 
-volatile unsigned int uart_rxcnt = 0;
+static const struct renesas_rlin3_ops_s g_renesas_rlin3_ops =
+{
+  .isr        = renesas_rlin3_interrupt,
+};
+
+static const struct uart_ops_s g_uart_ops =
+{
+  .setup          = renesas_rlin3_setup,
+  .shutdown       = renesas_rlin3_shutdown,
+  .attach         = renesas_rlin3_attach,
+  .detach         = renesas_rlin3_detach,
+  .ioctl          = renesas_rlin3_ioctl,
+  .receive        = renesas_rlin3_receive,
+  .rxint          = renesas_rlin3_rxint,
+  .rxavailable    = renesas_rlin3_rxavailable,
+  .send           = renesas_rlin3_send,
+  .txint          = renesas_rlin3_txint,
+  .txready        = renesas_rlin3_txready,
+  .txempty        = renesas_rlin3_txempty,
+};
+
+/* I/O buffers */
+
+static char g_uartrxbuffer[RLIN35_RXBUFSIZE];
+static char g_uarttxbuffer[RLIN35_TXBUFSIZE];
+
+static struct renesas_rlin3_s g_uart_priv =
+{
+  .ops            = &g_renesas_rlin3_ops,
+  .uart           = (void*)RLIN35_BASE,
+  .uartbase       = RLIN35_BASE,
+  .irq            = 436,
+};
+
+static uart_dev_t g_uart_port =
+{
+  .recv     =
+  {
+    .size   = RLIN35_RXBUFSIZE,
+    .buffer = g_uartrxbuffer,
+  },
+  .xmit     =
+  {
+    .size   = RLIN35_TXBUFSIZE,
+    .buffer = g_uarttxbuffer,
+  },
+  .ops      = &g_uart_ops,
+  .priv     = &g_uart_priv,
+};
+
+#define CONSOLE_DEV     g_uart_port
+#define TTYS0_DEV     g_uart_port
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+#include <nuttx/syslog/syslog.h>
+
+static int renesas_rlin3_setup(FAR struct uart_dev_s *dev)
+{
+  early_syslog("setup");
+
+  FAR struct renesas_rlin3_s *priv = (FAR struct renesas_rlin3_s *)dev->priv;
+  //renesas_rlin3_earlyserialinit(priv->uart);
+  return OK;
+}
+
+static void renesas_rlin3_shutdown(FAR struct uart_dev_s *dev)
+{
+  early_syslog("shutdown");
+
+  FAR struct renesas_rlin3_s *priv = (FAR struct renesas_rlin3_s *)dev->priv;
+
+}
+
+static int renesas_rlin3_attach(FAR struct uart_dev_s *dev)
+{
+  early_syslog("attach");
+
+  int ret;
+  return OK;
+}
+
+static void renesas_rlin3_detach(FAR struct uart_dev_s *dev)
+{
+  early_syslog("detach");
+
+}
+
+static int renesas_rlin3_ioctl(FAR struct file *filep, int cmd, unsigned long arg)
+{
+  early_syslog("ioctl");
+  return OK;
+}
+
+static int renesas_rlin3_receive(FAR struct uart_dev_s *dev, unsigned int *status)
+{
+  early_syslog("receive");
+  return 1;
+}
+
+static void renesas_rlin3_rxint(FAR struct uart_dev_s *dev, bool enable)
+{
+  //early_syslog("rxint, en:%d", (int)enable);
+
+}
+
+static bool renesas_rlin3_rxavailable(FAR struct uart_dev_s *dev)
+{
+  early_syslog("rxavailable");
+  return true;
+}
+
+static void renesas_rlin3_send(FAR struct uart_dev_s *dev, int ch)
+{
+  FAR struct renesas_rlin3_s *priv = (FAR struct renesas_rlin3_s *)dev->priv;
+  FAR struct renesas_rlin3 *uart = priv->uart;
+  while (uart->RLN3nLST & RLN3_LST_UTS_MSK);
+  uart->RLN3nLUTDR = ch;
+}
+
+static void renesas_rlin3_txint(FAR struct uart_dev_s *dev, bool enable)
+{
+  //early_syslog("txint, en:%d", (int)enable);
+
+  if(enable){
+    uart_xmitchars(dev);
+  }
+
+}
+
+static bool renesas_rlin3_txready(FAR struct uart_dev_s *dev)
+{
+  FAR struct renesas_rlin3_s *priv = (FAR struct renesas_rlin3_s *)dev->priv;
+  FAR struct renesas_rlin3 *uart = priv->uart;
+  return true;
+}
+
+static bool renesas_rlin3_txempty(FAR struct uart_dev_s *dev)
+{
+  early_syslog("txempty");
+  return true;
+}
 
 /****************************************************************************
  * Public Functions
@@ -106,7 +287,7 @@ void renesas_rlin3_earlyserialinit(FAR struct renesas_rlin3 *uart) {
  ****************************************************************************/
 
 void renesas_rlin3_serialinit(void) {
-
+    uart_register("/dev/console", &CONSOLE_DEV);
 }
 
 /****************************************************************************

@@ -26,6 +26,7 @@
 
 #include <nuttx/arch.h>
 #include <nuttx/board.h>
+#include <nuttx/serial/uart_renesas_rlin3.h>
 
 #include <arch/board/board.h>
 
@@ -68,5 +69,6 @@
 void up_initialize(void)
 {
     early_syslog("init");
-  
+
+    renesas_rlin3_serialinit();
 }

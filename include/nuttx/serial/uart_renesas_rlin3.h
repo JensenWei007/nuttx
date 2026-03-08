@@ -30,6 +30,7 @@
 #include <nuttx/config.h>
 
 #include <nuttx/serial/serial.h>
+#include <nuttx/spinlock.h>
 
 #ifdef CONFIG_RENESAS_RLIN3_UART
 
@@ -100,6 +101,30 @@ struct renesas_rlin3 {
     volatile uint8_t pad4[3];       // 0x31
     volatile uint8_t RLN3nLRSS;     // 0x34
 };
+
+struct renesas_rlin3_s;
+struct renesas_rlin3_ops_s
+{
+  CODE int (*isr)(int irq, FAR void *context, FAR void *arg);
+  CODE int (*ioctl)(FAR struct renesas_rlin3_s *priv, int cmd, unsigned long arg);
+  CODE FAR struct dma_chan_s *(*dmachan)(FAR struct renesas_rlin3_s *priv,
+                                         unsigned int ident);
+};
+
+/* UART Renesas_rlin3 private data */
+
+struct renesas_rlin3_s
+{
+  /* UART Renesas_rlin3 operations */
+
+  FAR const struct renesas_rlin3_ops_s *ops;
+
+  FAR const struct renesas_rlin3 *uart;
+
+  uint32_t       uartbase;  /* Base address of UART registers */
+  int                    irq;       /* IRQ associated with this UART */
+};
+
 
 /****************************************************************************
  * Public Functions Definitions
