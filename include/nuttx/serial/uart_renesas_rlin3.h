@@ -106,6 +106,8 @@ struct renesas_rlin3_s;
 struct renesas_rlin3_ops_s
 {
   CODE int (*isr)(int irq, FAR void *context, FAR void *arg);
+  CODE int (*rxisr)(int irq, FAR void *context, FAR void *arg);
+  CODE int (*txisr)(int irq, FAR void *context, FAR void *arg);
   CODE int (*ioctl)(FAR struct renesas_rlin3_s *priv, int cmd, unsigned long arg);
   CODE FAR struct dma_chan_s *(*dmachan)(FAR struct renesas_rlin3_s *priv,
                                          unsigned int ident);
@@ -122,7 +124,9 @@ struct renesas_rlin3_s
   FAR const struct renesas_rlin3 *uart;
 
   uint32_t       uartbase;  /* Base address of UART registers */
-  int                    irq;       /* IRQ associated with this UART */
+  int                    irq;
+  int                    rxirq;
+  int                    txirq;
 };
 
 
@@ -165,6 +169,26 @@ void renesas_rlin3_serialinit(void);
  ****************************************************************************/
 
 int renesas_rlin3_interrupt(int irq, FAR void *context, FAR void *arg);
+
+/****************************************************************************
+ * Name: renesas_rlin3_rxinterrupt
+ *
+ * Description:
+ *   Handle UART renesas_rlin3 RX interrupt.
+ *
+ ****************************************************************************/
+
+int renesas_rlin3_rxinterrupt(int irq, FAR void *context, FAR void *arg);
+
+/****************************************************************************
+ * Name: renesas_rlin3_interrupt
+ *
+ * Description:
+ *   Handle UART renesas_rlin3 TX interrupt.
+ *
+ ****************************************************************************/
+
+int renesas_rlin3_txinterrupt(int irq, FAR void *context, FAR void *arg);
 
 /****************************************************************************
  * Name: renesas_rlin3_putc

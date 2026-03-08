@@ -51,15 +51,8 @@
 
 #define RLIN35_BASE 0xFFC7C100
 
-#define RLIN35_RXBUFSIZE 100
-#define RLIN35_TXBUFSIZE 100
-
-#define renesas_rlin3_getreg renesas_rlin3_mmio_getreg
-#define renesas_rlin3_putreg renesas_rlin3_mmio_putreg
-//For not use mmio
-//#define u16550_getreg uart_getreg
-//#define u16550_putreg uart_putreg
-
+#define RLIN35_RXBUFSIZE 256
+#define RLIN35_TXBUFSIZE 256
 
 /****************************************************************************
  * Private Function Prototypes
@@ -85,6 +78,8 @@ static bool renesas_rlin3_txempty(FAR struct uart_dev_s *dev);
 static const struct renesas_rlin3_ops_s g_renesas_rlin3_ops =
 {
   .isr        = renesas_rlin3_interrupt,
+  .rxisr      = renesas_rlin3_rxinterrupt,
+  .txisr      = renesas_rlin3_txinterrupt,
 };
 
 static const struct uart_ops_s g_uart_ops =
@@ -114,6 +109,8 @@ static struct renesas_rlin3_s g_uart_priv =
   .uart           = (void*)RLIN35_BASE,
   .uartbase       = RLIN35_BASE,
   .irq            = 436,
+  .rxirq          = 437,
+  .txirq          = 438,
 };
 
 static uart_dev_t g_uart_port =
@@ -142,8 +139,6 @@ static uart_dev_t g_uart_port =
 
 static int renesas_rlin3_setup(FAR struct uart_dev_s *dev)
 {
-  early_syslog("setup");
-
   FAR struct renesas_rlin3_s *priv = (FAR struct renesas_rlin3_s *)dev->priv;
   //renesas_rlin3_earlyserialinit(priv->uart);
   return OK;
@@ -159,16 +154,34 @@ static void renesas_rlin3_shutdown(FAR struct uart_dev_s *dev)
 
 static int renesas_rlin3_attach(FAR struct uart_dev_s *dev)
 {
-  early_syslog("attach");
-
+  FAR struct renesas_rlin3_s *priv = (FAR struct renesas_rlin3_s *)dev->priv;
   int ret;
-  return OK;
+
+  /* Attach and enable the IRQ */
+
+  ret = irq_attach(priv->irq, priv->ops->isr, dev);
+#ifndef CONFIG_ARCH_NOINTC
+  if (ret == OK)
+    {
+      /* Enable the interrupt (RX and TX interrupts are still disabled
+       * in the UART
+       * But in UART mode, the interrupt source for this is none.
+       * That means this interrupt will not happen.
+       */
+
+      up_enable_irq(priv->irq);
+    }
+#endif
+
+  return ret;
 }
 
 static void renesas_rlin3_detach(FAR struct uart_dev_s *dev)
 {
-  early_syslog("detach");
+  FAR struct renesas_rlin3_s *priv = (FAR struct renesas_rlin3_s *)dev->priv;
 
+  up_disable_irq(priv->irq);
+  irqchain_detach(priv->irq, priv->ops->isr, dev);
 }
 
 static int renesas_rlin3_ioctl(FAR struct file *filep, int cmd, unsigned long arg)
@@ -179,20 +192,41 @@ static int renesas_rlin3_ioctl(FAR struct file *filep, int cmd, unsigned long ar
 
 static int renesas_rlin3_receive(FAR struct uart_dev_s *dev, unsigned int *status)
 {
-  early_syslog("receive");
-  return 1;
+  FAR struct renesas_rlin3_s *priv = (FAR struct renesas_rlin3_s *)dev->priv;
+  FAR struct renesas_rlin3 *uart = priv->uart;
+  uint32_t rbr;
+
+  // Need to check for defs in rh850 & nuttx for status bits
+  *status = uart->RLN3nLEST;
+  rbr     = uart->RLN3nLURDR;
+
+  return rbr;
 }
 
 static void renesas_rlin3_rxint(FAR struct uart_dev_s *dev, bool enable)
 {
-  //early_syslog("rxint, en:%d", (int)enable);
+  FAR struct renesas_rlin3_s *priv = (FAR struct renesas_rlin3_s *)dev->priv;
+  FAR struct renesas_rlin3 *uart = priv->uart;
 
+  // In UART mode, the interrupt is enabled.
+  // So what we need to do is enable/disable this irq.
+
+  /* Attach and enable the IRQ */
+
+  if(enable) {
+    irq_attach(priv->rxirq, priv->ops->rxisr, dev);
+    up_enable_irq(priv->rxirq);
+  } else {
+    up_disable_irq(priv->rxirq);
+    irqchain_detach(priv->rxirq, priv->ops->rxisr, dev);
+  }
 }
 
 static bool renesas_rlin3_rxavailable(FAR struct uart_dev_s *dev)
 {
-  early_syslog("rxavailable");
-  return true;
+  FAR struct renesas_rlin3_s *priv = (FAR struct renesas_rlin3_s *)dev->priv;
+  FAR struct renesas_rlin3 *uart = priv->uart;
+  return !(uart->RLN3nLST & RLN3_LST_URS_MSK) & uart->RLN3nLURDR;
 }
 
 static void renesas_rlin3_send(FAR struct uart_dev_s *dev, int ch)
@@ -205,25 +239,40 @@ static void renesas_rlin3_send(FAR struct uart_dev_s *dev, int ch)
 
 static void renesas_rlin3_txint(FAR struct uart_dev_s *dev, bool enable)
 {
-  //early_syslog("txint, en:%d", (int)enable);
+  FAR struct renesas_rlin3_s *priv = (FAR struct renesas_rlin3_s *)dev->priv;
+  FAR struct renesas_rlin3 *uart = priv->uart;
+
+  // In UART mode, the interrupt is enabled.
+  // So what we need to do is enable/disable this irq.
+
+  /* Attach and enable the IRQ */
 
   if(enable){
-    uart_xmitchars(dev);
-  }
+    irq_attach(priv->txirq, priv->ops->txisr, dev);
+    up_enable_irq(priv->txirq);
 
+    /* Fake a TX interrupt here by just calling uart_xmitchars() with
+     * interrupts disabled (note this may recurse).
+    */
+    uart_xmitchars(dev);
+  } else {
+    up_disable_irq(priv->txirq);
+    irqchain_detach(priv->txirq, priv->ops->txisr, dev);
+  }
 }
 
 static bool renesas_rlin3_txready(FAR struct uart_dev_s *dev)
 {
   FAR struct renesas_rlin3_s *priv = (FAR struct renesas_rlin3_s *)dev->priv;
   FAR struct renesas_rlin3 *uart = priv->uart;
-  return true;
+  return !(uart->RLN3nLST & RLN3_LST_UTS_MSK);
 }
 
 static bool renesas_rlin3_txempty(FAR struct uart_dev_s *dev)
 {
-  early_syslog("txempty");
-  return true;
+  FAR struct renesas_rlin3_s *priv = (FAR struct renesas_rlin3_s *)dev->priv;
+  FAR struct renesas_rlin3 *uart = priv->uart;
+  return !((uart->RLN3nLST & RLN3_LST_UTS_MSK) | uart->RLN3nLUTDR);
 }
 
 /****************************************************************************
@@ -299,7 +348,33 @@ void renesas_rlin3_serialinit(void) {
  ****************************************************************************/
 
 int renesas_rlin3_interrupt(int irq, FAR void *context, FAR void *arg) {
-    return 0;
+  // In UART mode, this should not be called.
+  PANIC();
+  return 1;
+}
+
+/****************************************************************************
+ * Name: renesas_rlin3_rxinterrupt
+ *
+ * Description:
+ *   Handle UART renesas_rlin3 RX interrupt.
+ *
+ ****************************************************************************/
+
+int renesas_rlin3_rxinterrupt(int irq, FAR void *context, FAR void *arg) {
+
+}
+
+/****************************************************************************
+ * Name: renesas_rlin3_interrupt
+ *
+ * Description:
+ *   Handle UART renesas_rlin3 TX interrupt.
+ *
+ ****************************************************************************/
+
+int renesas_rlin3_txinterrupt(int irq, FAR void *context, FAR void *arg) {
+
 }
 
 /****************************************************************************
