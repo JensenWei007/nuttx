@@ -41,6 +41,7 @@ list(APPEND SRCS rh850_releasestack.c)
 list(APPEND SRCS rh850_usestack.c)
 list(APPEND SRCS rh850_createstack.c)
 list(APPEND SRCS rh850_nputs.c)
+list(APPEND SRCS rh850_copystate.c)
 
 #if(CONFIG_ENABLE_ALL_SIGNALS)
 #  list(APPEND SRCS riscv_schedulesigaction.c riscv_sigdeliver.c)

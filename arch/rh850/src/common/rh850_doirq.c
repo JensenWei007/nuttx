@@ -62,7 +62,7 @@ uint32_t *rh850_doirq(int irq, uint32_t * regs)
   struct tcb_s **running_task = &g_running_tasks[this_cpu()];
   struct tcb_s *tcb;
 
-  renesas_copystate((*running_task)->xcp.regs, regs);
+  rh850_copystate((*running_task)->xcp.regs, regs);
 
   // board_autoled_on(LED_INIRQ);
 #ifdef CONFIG_SUPPRESS_INTERRUPTS

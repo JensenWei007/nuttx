@@ -110,6 +110,7 @@ typedef void (*up_vector_t)(void);
 
 /* Defined in files with the same name as the function */
 void rh850_fullcontextrestore(uint32_t *regs) noreturn_function;
+void rh850_copystate(uint32_t *dest, uint32_t *src);
 void u2a16_serialinit();
 
 #endif /* __ASSEMBLY__ */
